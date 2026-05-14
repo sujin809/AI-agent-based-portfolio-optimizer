@@ -70,6 +70,17 @@ def compute_technical_features(prices: pd.DataFrame) -> pd.DataFrame:
         # 변동성
         df["vol_20d"] = df["ret_1d"].rolling(20).std()
 
+        # MACD
+        ema12 = p.ewm(span = 12).mean()
+        ema26 = p.ewm(span = 26).mean()
+        df["macd"] = ema12 -ema26
+
+        #볼린저 밴드
+        ma20 = p.rolling(20).mean()
+        std20 = p.rolling(20).std()
+        df["bb_upper"] = (p - (ma20 + 2 * std20)) / p
+        df["bb_lower"] = (p - (ma20 - 2 * std20)) / p
+
         features[ticker] = df
 
     combined = pd.concat(features, axis=1)  # MultiIndex: (ticker, feature)

@@ -134,7 +134,22 @@ class PortfolioEnv(gym.Env):
 
         # 순 수익률 계산 (Reward)
         net_cost = transaction_cost + tax_paid
-        reward   = -net_cost / (self.portfolio_val + 1e-9)
+        
+        if len(self.portfolio_history) >= 20:
+            recent = np.array(self.portfolio_history[-20:])
+            returns = np.diff(recent) / recent[:-1]
+            mean_r  = returns.mean()
+            std_r   = returns.std() + 1e-9
+            sharpe_reward = mean_r / std_r
+
+            peak = np.maximum.accumulate(recent)
+            mdd = ((recent - peak) / peak).min()
+            mdd_penalty = abs(mdd) * 0.5 # 페널티 강도 조절
+        else:
+            sharpe_reward = 0.0
+            mdd_penalty = 0.0
+
+        reward = sharpe_reward - net_cost / (self.portfolio_val + 1e-9)
 
         # 비중 업데이트
         self.weights = new_weights
