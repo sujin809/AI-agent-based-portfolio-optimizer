@@ -7,19 +7,19 @@
 
 ---
 
-## Why This Project / 왜 이 프로젝트인가
+## 기존 연구들과의 차별점
 
-기존 RL 포트폴리오 최적화 연구들은 두 가지 중요한 요소를 무시해왔습니다:
+기존 RL 포트폴리오 최적화 연구들은 두 가지 중요한 요소들이 부족했다고 생각합니다:
 
-**1. 세금 구조 무시**
-대부분의 논문이 세금을 단순화하거나 완전히 무시합니다. 하지만 한국 투자자의 경우 해외주식 양도세 22%는 실질 수익에 큰 영향을 미칩니다. 이 프로젝트는 세금을 Reward에 직접 통합한 **일반화된 Tax-aware Reward 프레임워크**를 제안합니다.
+**1. 세금 구조 미반영**
+대부분의 논문이 세금을 단순화하거나 완전히 반영하지 않습니다. 하지만 한국 투자자의 경우 해외주식 양도세 22%는 실질 수익에 큰 영향을 미칩니다. 이 프로젝트는 세금을 Reward에 직접 통합한 **일반화된 한국 투자자 기준 Tax-aware Reward 프레임워크**를 제안합니다.
 
 **2. 공식 텍스트 데이터 미활용**
 기존 연구들은 뉴스나 트위터 감성 분석을 사용하지만, 신뢰도와 look-ahead bias 문제가 있습니다. 이 프로젝트는 **SEC 8-K 공시**를 text-based signal로 활용합니다. 공식 문서라 신뢰도가 높고, 공시 날짜가 명확해 look-ahead bias를 통제하기 쉽습니다.
 
 ---
 
-## Pipeline / 파이프라인
+## Pipeline
 
 ```
 시장 데이터 수집 (yfinance, 2019~현재)
@@ -41,7 +41,7 @@ PPO / SAC 에이전트 학습
 
 ---
 
-## Getting Started / 실행 방법
+## 실행 방법
 
 ```bash
 git clone https://github.com/sujin809/rl-portfolio.git
@@ -75,7 +75,7 @@ python baseline.py
 
 ---
 
-## Methodology / 방법론
+## Methodology
 
 ### 1. State Space
 | 구분 | Feature | 설명 |
@@ -111,7 +111,7 @@ Reward = Sharpe(최근 20일) - 거래비용 - 세금 - MDD 패널티
 | PPO | 온폴리시, 안정적, clip_range=0.2로 급격한 정책 변화 방지 |
 | SAC | 오프폴리시, 샘플 효율 높음, 엔트로피 최대화로 탐색 장려 |
 
-### 5. 투자 유니버스 (27개 종목)
+### 5. 투자 종목 (27개 종목)
 | 섹터 | 종목 |
 |------|------|
 | Technology | AAPL, MSFT, GOOGL, META, NVDA, TSLA |
@@ -163,7 +163,7 @@ Reward = Sharpe(최근 20일) - 거래비용 - 세금 - MDD 패널티
 
 ---
 
-## Key Insights / 핵심 인사이트
+## Key Insights
 
 **1. Tax-aware Reward의 효과**
 PPO에서 세금 반영 시 수익률과 샤프 비율이 크게 개선됨. 에이전트가 세금을 최소화하는 방향으로 리밸런싱 전략을 학습한 결과.
