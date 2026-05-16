@@ -7,7 +7,7 @@
 
 ---
 
-## Why This Project / 왜 이 프로젝트인가
+## Why This Project
 
 기존 RL 포트폴리오 최적화 연구들은 두 가지 중요한 요소를 무시해왔습니다:
 
@@ -19,7 +19,7 @@
 
 ---
 
-## Pipeline / 파이프라인
+## Pipeline
 
 ```
 시장 데이터 수집 (yfinance, 2019~현재)
@@ -41,7 +41,7 @@ PPO / SAC 에이전트 학습 (Optuna 하이퍼파라미터 튜닝)
 
 ---
 
-## Getting Started / 실행 방법
+## Getting Started
 
 ```bash
 git clone https://github.com/sujin809/rl-portfolio.git
@@ -81,7 +81,7 @@ python baseline.py
 
 ---
 
-## Methodology / 방법론
+## Methodology
 
 ### 1. State Space
 | 구분 | Feature | 설명 |
@@ -147,7 +147,7 @@ Reward = Sharpe(최근 20일) - 거래비용 - 세금 - MDD 패널티
 
 ---
 
-## Results / 실험 결과
+## Results
 
 > 백테스팅 기간: 2019~2026 | 초기 자본: ₩10,000,000 | 거래비용: 0.1%
 
@@ -197,7 +197,7 @@ Reward = Sharpe(최근 20일) - 거래비용 - 세금 - MDD 패널티
 
 ---
 
-## Key Insights / 핵심 인사이트
+## Key Insights
 
 **1. Tax-aware Reward의 효과**
 PPO와 SAC 모두 세금 반영 시 수익률과 샤프 비율이 크게 개선됨. 에이전트가 세금을 최소화하는 방향으로 리밸런싱 전략을 학습한 결과.
