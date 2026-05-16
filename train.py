@@ -18,7 +18,7 @@ from agent import build_vec_env, build_ppo, build_sac, train, predict, load_mode
 
 # ── 설정 ──────────────────────────────────────────────────────
 CONFIG = {
-    "window":            20,
+    "window":            15,
     "initial_cash":      10_000_000,
     "transaction_cost":  0.001,
     "tax_regime":        "korean",      # 'korean' | 'us_long' | 'us_short' | 'none'
