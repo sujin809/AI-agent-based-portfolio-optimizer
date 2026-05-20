@@ -27,16 +27,17 @@ CONFIG = {
     "agent":             "ppo",         # 'ppo' | 'sac'
     "save_path":         "./models",
     "result_path":       "./results",
+    "use_sentiment": True,
 }
 
 
 # ── 1. 데이터 준비 ────────────────────────────────────────────
-def prepare_data():
+def prepare_data(cfg=CONFIG):
     print("=" * 60)
     print("[train] Step 1. Loading market data...")
     prices_df = fetch_price_data(TICKERS)
     tech      = compute_technical_features(prices_df)
-    sent      = fetch_sec_sentiment(TICKERS)
+    sent      = fetch_sec_sentiment(TICKERS, use_sentiment = cfg.get("use_sentiment", True))
     states, idx, tickers, feat_names = build_state_matrix(prices_df, tech, sent)
     prices_arr = prices_df.loc[idx].values
 
@@ -324,11 +325,13 @@ if __name__ == "__main__":
     parser.add_argument("--tax",        type=str, default="korean",  help="korean | us_long | us_short | none")
     parser.add_argument("--timesteps",  type=int, default=200_000)
     parser.add_argument("--window",     type=int, default=20)
+    parser.add_argument("--use_sentiment", type=bool, default=True)
     args = parser.parse_args()
 
     CONFIG["agent"]           = args.agent
     CONFIG["tax_regime"]      = args.tax
     CONFIG["total_timesteps"] = args.timesteps
     CONFIG["window"]          = args.window
+    CONFIG["use_sentiment"] = args.use_sentiment
 
     main(CONFIG)

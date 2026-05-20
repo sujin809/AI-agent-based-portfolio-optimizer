@@ -98,9 +98,15 @@ def _compute_rsi(series: pd.Series, window: int = 14) -> pd.Series:
 
 
 # ── 3. Text-based Signal (SEC 공시) ──────────────────────────
-def fetch_sec_sentiment(tickers=TICKERS, lookback_days: int = 30) -> pd.DataFrame:
+def fetch_sec_sentiment(tickers=TICKERS, lookback_days: int = 30, use_sentiment: bool = True) -> pd.DataFrame:
     from sec_sentiment import build_sentiment_matrix
     import yfinance as yf
+    if not use_sentiment:
+        print("[data] Ablation: sentiment disabled, returning zeros")
+        prices = fetch_price_data(tickers)
+        return pd.DataFrame(0.0, index= prices.index, columns= price.columns)
+    
+    from sec_sentiment import build_sentiment_matrix
 
     prices = fetch_price_data(tickers)
     start  = prices.index[0].strftime("%Y-%m-%d")

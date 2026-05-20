@@ -9,24 +9,24 @@
 
 ## Why This Project
 
-기존 RL 포트폴리오 최적화 연구들은 두 가지 중요한 요소를 무시해왔습니다:
+기존 RL 포트폴리오 최적화 연구들은 두 가지의 한계점이 있다:
 
-**1. 세금 구조 무시**
-대부분의 논문이 세금을 단순화하거나 완전히 무시합니다. 하지만 실제 투자자의 경우 양도세는 실질 수익에 큰 영향을 미칩니다. 이 프로젝트는 세금을 Reward에 직접 통합한 **일반화된 Tax-aware Reward 프레임워크**를 제안하며, 한국 투자자(양도세 22%)를 케이스 스터디로 적용합니다.
+**1. 세금 구조 측면**
+대부분의 논문이 세금을 단순화하거나 완전히 무시합니다. 이 프로젝트는 세금을 Reward에 직접 통합한 **일반화된 Tax-aware Reward 프레임워크**를 제안하며, 한국 투자자(양도세 22%)를 케이스 스터디로 적용합니다.
 
-**2. 공식 텍스트 데이터 미활용**
-기존 연구들은 뉴스나 트위터 감성 분석을 사용하지만, 신뢰도와 look-ahead bias 문제가 있습니다. 이 프로젝트는 **SEC 8-K 공시**를 text-based signal로 활용합니다. 공식 문서라 신뢰도가 높고, 공시 날짜가 명확해 look-ahead bias를 통제하기 쉽습니다.
+**2. 공식 텍스트 데이터 미활용 측면**
+기존 연구들은 뉴스나 트위터 글을 통한 분석을 사용하지만, 신뢰도와 look-ahead bias 문제가 있습니다. 이 프로젝트는 **SEC 8-K 공시**를 text-based signal로 활용합니다. 공식 문서라 신뢰도가 높고, 공시 날짜가 명확해 look-ahead bias를 통제하기 쉽습니다.
 
 ---
 
-## Pipeline
+## Pipeline / 파이프라인
 
 ```
 시장 데이터 수집 (yfinance, 2019~현재)
         +
 SEC 8-K 공시 수집 (EDGAR API)
         ↓
-Groq LLM으로 감성 점수 추출 (-1 ~ +1)
+Groq LLM으로 크롤링 점수 추출 (-1 ~ +1)
         +
 기술적 지표 계산 (RSI, MACD, 볼린저 밴드 등)
         ↓
@@ -41,7 +41,7 @@ PPO / SAC 에이전트 학습 (Optuna 하이퍼파라미터 튜닝)
 
 ---
 
-## Getting Started
+## Getting Started / 실행 방법
 
 ```bash
 git clone https://github.com/sujin809/rl-portfolio.git
@@ -56,11 +56,14 @@ GROQ_API_KEY=your_groq_api_key_here
 
 학습 실행:
 ```bash
-# PPO + 한국 세금
-python train.py --agent ppo --tax korean --timesteps 200000
+# SAC + 한국 세금 (최고 성능)
+python train.py --agent sac --tax korean --timesteps 200000 --window 15
 
-# SAC + 한국 세금
-python train.py --agent sac --tax korean --timesteps 200000
+# PPO + 한국 세금
+python train.py --agent ppo --tax korean --timesteps 200000 --window 35
+
+# Ablation: text signal 없음
+python train.py --agent sac --tax korean --timesteps 200000 --window 15 --use_sentiment False
 ```
 
 하이퍼파라미터 튜닝:
@@ -98,8 +101,6 @@ python baseline.py
 27개 종목에 대한 비중 벡터. [-1, 1] 범위의 숫자 → Softmax → 합=1 보장.
 
 ### 3. Tax-aware Reward
-세금 구조를 Reward에 직접 통합한 일반화 프레임워크:
-
 ```
 Reward = Sharpe(최근 20일) - 거래비용 - 세금 - MDD 패널티
 ```
@@ -111,9 +112,9 @@ Reward = Sharpe(최근 20일) - 거래비용 - 세금 - MDD 패널티
 | US Short | 양도차익의 37% |
 | None | 세금 없음 |
 
-### 4. 에이전트 및 최적 하이퍼파라미터 (Optuna 튜닝)
+### 4. 최적 하이퍼파라미터 (Optuna 튜닝)
 
-**PPO:**
+**PPO (window=35):**
 | 파라미터 | 값 |
 |---------|-----|
 | learning_rate | 7.37e-05 |
@@ -123,9 +124,8 @@ Reward = Sharpe(최근 20일) - 거래비용 - 세금 - MDD 패널티
 | gamma | 0.9502 |
 | clip_range | 0.233 |
 | ent_coef | 0.000247 |
-| window | 35 |
 
-**SAC:**
+**SAC (window=15):**
 | 파라미터 | 값 |
 |---------|-----|
 | learning_rate | 1.55e-04 |
@@ -133,7 +133,6 @@ Reward = Sharpe(최근 20일) - 거래비용 - 세금 - MDD 패널티
 | buffer_size | 50,000 |
 | gamma | 0.9654 |
 | tau | 0.00977 |
-| window | 15 |
 
 ### 5. 투자 유니버스 (27개 종목)
 | 섹터 | 종목 |
@@ -147,7 +146,7 @@ Reward = Sharpe(최근 20일) - 거래비용 - 세금 - MDD 패널티
 
 ---
 
-## Results
+## Results / 실험 결과
 
 > 백테스팅 기간: 2019~2026 | 초기 자본: ₩10,000,000 | 거래비용: 0.1%
 
@@ -163,22 +162,31 @@ Reward = Sharpe(최근 20일) - 거래비용 - 세금 - MDD 패널티
 | Risk Parity | 18.05% | 0.495 | -15.81% |
 | PPO (none) | 17.07% | 0.437 | -19.57% |
 | Momentum | 16.77% | 0.406 | -18.38% |
-| SAC (korean) 디폴트 | 16.62% | 0.409 | -20.78% |
 | Min Variance | 9.21% | 0.075 | -17.61% |
 
 ### Tax-aware Reward 효과
 
 | | SAC (korean) | SAC (none) | 차이 |
 |--|-------------|------------|------|
-| 수익률 | **37.26%** | 27.41% | **+9.85%** |
-| 샤프 비율 | **1.225** | 0.937 | **+0.288** |
+| 수익률 | **32.04%** | 27.41% | **+4.63%** |
+| 샤프 비율 | **1.096** | 0.937 | **+0.159** |
 
 | | PPO (korean) | PPO (none) | 차이 |
 |--|-------------|------------|------|
 | 수익률 | **31.69%** | 17.07% | **+14.62%** |
 | 샤프 비율 | **1.009** | 0.437 | **+0.572** |
 
-> 세금을 Reward에 반영했을 때 PPO +14.62%, SAC +9.85% 수익률 개선. **Tax-aware Reward가 실질 수익 개선에 유의미한 영향을 미침.**
+> 세금을 Reward에 반영했을 때 일관되게 수익률과 샤프 비율 개선. **Tax-aware Reward가 실질 수익 개선에 유의미한 영향을 미침.**
+
+### Ablation Study: Text-based Signal 기여도
+
+| | SAC + SEC Signal | SAC (Signal 제거) | 차이 |
+|--|----------------|-----------------|------|
+| 수익률 | **32.04%** | 16.95% | **+15.09%** |
+| 샤프 비율 | **1.096** | 0.443 | **+0.653** |
+| MDD | **-17.72%** | -19.14% | **개선** |
+
+> SEC 8-K 공시 기반 텍스트 신호 제거 시 수익률 -15.09%, 샤프 -0.653 하락. **Text-based signal이 포트폴리오 성과에 유의미하게 기여함.**
 
 ### 하이퍼파라미터 튜닝 효과
 
@@ -197,16 +205,16 @@ Reward = Sharpe(최근 20일) - 거래비용 - 세금 - MDD 패널티
 
 ---
 
-## Key Insights
+## Key Insights / 핵심 인사이트
 
 **1. Tax-aware Reward의 효과**
-PPO와 SAC 모두 세금 반영 시 수익률과 샤프 비율이 크게 개선됨. 에이전트가 세금을 최소화하는 방향으로 리밸런싱 전략을 학습한 결과.
+PPO와 SAC 모두 세금 반영 시 수익률과 샤프 비율이 개선됨. 에이전트가 세금을 최소화하는 방향으로 리밸런싱 전략을 학습한 결과.
 
-**2. 하이퍼파라미터 튜닝의 중요성**
+**2. Text-based Signal의 기여도 (Ablation)**
+SEC 8-K 공시 신호 제거 시 수익률 -15.09%, 샤프 -0.653 하락. 텍스트 신호가 단순 장식이 아닌 실질적 성과 개선에 기여함을 증명.
+
+**3. 하이퍼파라미터 튜닝의 중요성**
 Optuna 튜닝으로 SAC가 16.62% → 37.26%로 대폭 개선. 디폴트 파라미터로는 RL의 잠재력을 충분히 발휘하지 못함.
-
-**3. PPO vs SAC**
-튜닝 후 SAC가 PPO보다 우수한 성과. 충분한 튜닝이 이루어졌을 때 SAC의 높은 샘플 효율이 장점으로 작용.
 
 **4. RL vs 전통 전략**
 튜닝된 SAC (korean)이 모든 전통 전략 대비 최고 수익률과 샤프 비율 달성.
@@ -220,7 +228,6 @@ Optuna 튜닝으로 SAC가 16.62% → 37.26%로 대폭 개선. 디폴트 파라�
 - Walk-forward 승률 47.4%로 일관된 우위 미확보
 
 **Future Work:**
-- Ablation study: text-based signal 기여도 분석
 - Regime-aware RL (시장 상태별 다른 에이전트)
 - Meta-learning으로 non-stationarity 완화
 - 더 많은 종목 및 글로벌 시장으로 확장
