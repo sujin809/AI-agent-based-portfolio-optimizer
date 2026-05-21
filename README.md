@@ -19,7 +19,7 @@
 
 ---
 
-## Pipeline / 파이프라인
+## Pipeline
 
 ```
 시장 데이터 수집 (yfinance, 2019~현재)
@@ -41,7 +41,7 @@ PPO / SAC 에이전트 학습 (Optuna 하이퍼파라미터 튜닝)
 
 ---
 
-## Getting Started / 실행 방법
+## Getting Started
 
 ```bash
 git clone https://github.com/sujin809/rl-portfolio.git
@@ -134,7 +134,7 @@ Reward = Sharpe(최근 20일) - 거래비용 - 세금 - MDD 패널티
 | gamma | 0.9654 |
 | tau | 0.00977 |
 
-### 5. 투자 유니버스 (27개 종목)
+### 5. 투자 종목 (27개 종목)
 | 섹터 | 종목 |
 |------|------|
 | Technology | AAPL, MSFT, GOOGL, META, NVDA, TSLA |
@@ -146,7 +146,7 @@ Reward = Sharpe(최근 20일) - 거래비용 - 세금 - MDD 패널티
 
 ---
 
-## Results / 실험 결과
+## Results
 
 > 백테스팅 기간: 2019~2026 | 초기 자본: ₩10,000,000 | 거래비용: 0.1%
 
@@ -205,7 +205,7 @@ Reward = Sharpe(최근 20일) - 거래비용 - 세금 - MDD 패널티
 
 ---
 
-## Key Insights / 핵심 인사이트
+## Key Insights
 
 **1. Tax-aware Reward의 효과**
 PPO와 SAC 모두 세금 반영 시 수익률과 샤프 비율이 개선됨. 에이전트가 세금을 최소화하는 방향으로 리밸런싱 전략을 학습한 결과.
@@ -256,7 +256,7 @@ rl-portfolio/
 
 ## Author
 
-**정수진 (Sujin Jeong)**  
+**정수진 (Sujin Jung)**  
 Industrial Engineering + Biomedical Engineering (Minor), UNIST  
 Founder, FIC (Finance Investment Club — UNIST, KAIST, POSTECH, DGIST, GIST)  
 GitHub: [@sujin809](https://github.com/sujin809)
